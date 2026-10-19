@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Europa Universalis V – Advances, Countries, Units &amp; Buildings at the 1337 Start</title>
+  <meta name="description" content="Compare every Europa Universalis V country at the 1337 start: the full advance tree by Age with what each country starts with, their development, population, treasury and armies, and every unit and building by Age. Free, built from the game files.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://eu5tech.jane.berlin/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="EU5 Tech">
+  <meta property="og:title" content="Europa Universalis V – Advances, Countries, Units &amp; Buildings at the 1337 Start">
+  <meta property="og:description" content="Which countries start ahead in EU5? Every advance by Age, what each nation starts with, and how they compare in 1337, straight from the game files.">
+  <meta property="og:url" content="https://eu5tech.jane.berlin/">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Europa Universalis V – Advances, Countries, Units &amp; Buildings at the 1337 Start">
+  <meta name="twitter:description" content="Every advance by Age and how every country compares at the 1337 start of EU5.">
+  <link rel="icon" type="image/svg+xml" href="/eu5/favicon.svg?v=__DATA_VERSION__">
+  <script>
+    // Runs before the page draws, so the theme doesn't flash: the visitor's
+    // pick from the ☀️/🌙 button, else the system's.
+    try {
+      const t = localStorage.getItem("eu5-theme");
+      if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+    } catch {}
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f3efe6;
+      --panel: #faf7f0;
+      --ink: #1f2428;
+      --muted: #6b6f72;
+      --line: #d8d2c3;
+      --accent: #1d5c63;
+      --accent-soft: #d9ecee;
+      --node: #fffdf8;
+      --arrow: #b3ada0;
+      --arrow-on: #3c4a4d;
+      --good: #4f7a3c;
+      --bad: #a3352a;
+      --inf: #6b7f4e;
+      --cav: #b2803a;
+      --art: #8a2c1f;
+      --other: #8d8577;
+      --navy: #2f4f6f;
+    }
+    /* Dark: follows the system unless the visitor picked a theme with the
+       header's ☀️/🌙 button (stored, applied as data-theme on <html>). */
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #14171a;
+        --panel: #1c2024;
+        --ink: #e8e4da;
+        --muted: #97a0a3;
+        --line: #31383d;
+        --accent: #6cc3cb;
+        --accent-soft: #1c3a3e;
+        --node: #232a2f;
+        --arrow: #3d464b;
+        --arrow-on: #b4cfd2;
+        --good: #8ab872;
+        --bad: #e08a7e;
+        --inf: #93a86f;
+        --cav: #d3a258;
+        --art: #d8735c;
+        --navy: #7ea4c8;
+      }
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #14171a;
+      --panel: #1c2024;
+      --ink: #e8e4da;
+      --muted: #97a0a3;
+      --line: #31383d;
+      --accent: #6cc3cb;
+      --accent-soft: #1c3a3e;
+      --node: #232a2f;
+      --arrow: #3d464b;
+      --arrow-on: #b4cfd2;
+      --good: #8ab872;
+      --bad: #e08a7e;
+      --inf: #93a86f;
+      --cav: #d3a258;
+      --art: #d8735c;
+      --navy: #7ea4c8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      display: grid;
+      grid-template-columns: 270px 1fr;
+      grid-template-rows: auto 1fr;
+      overflow: hidden;
+    }
+    h1, h2, h3, .serif { font-family: Georgia, "Times New Roman", serif; font-weight: normal; }
+    .theme-toggle { flex: none; font: inherit; font-size: 1em; line-height: 1; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); background: transparent; cursor: pointer; }
+    .theme-toggle:hover { border-color: var(--accent); }
+
+    header {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 12px 24px; flex-wrap: wrap;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
+    header h1 { font-size: 1.35em; letter-spacing: -0.01em; }
+    header h1 small { color: var(--muted); font-size: 0.7em; margin-left: 6px; }
+    /* Which commit is deployed: a small "Build <sha>" link. */
+    .build { font-size: 0.72em; color: var(--muted); text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .build:hover { color: var(--accent); border-color: var(--accent); }
+    .tabs { display: flex; gap: 4px; }
+    .tabs button {
+      font: inherit; font-size: 0.9em;
+      border: 1px solid var(--line); background: transparent; color: var(--ink);
+      padding: 6px 14px; border-radius: 999px; cursor: pointer;
+    }
+    .tabs button.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+    .current { margin-left: auto; display: flex; align-items: center; justify-content: flex-end; gap: 10px; font-size: 0.95em; flex: 1 1 140px; min-width: 0; }
+    .current > div { min-width: 0; }
+    .current .cname, .current .cstats { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .current .cstats { font-size: 0.8em; color: var(--muted); }
+    .current b { font-family: Georgia, serif; font-weight: normal; font-size: 1.2em; }
+    .pill { font-size: 0.72em; padding: 2px 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+    .sw { display: inline-block; width: 18px; height: 12px; border-radius: 3px; border: 1px solid color-mix(in srgb, var(--ink) 35%, transparent); flex: none; }
+    .sw.big { width: 30px; height: 20px; border-radius: 4px; }
+
+    /* Sidebar */
+    aside {
+      border-right: 1px solid var(--line);
+      background: var(--panel);
+      overflow-y: auto;
+      padding: 12px 10px 40px;
+    }
+    aside input[type=search] {
+      width: 100%; font: inherit; font-size: 0.9em;
+      padding: 7px 10px; border-radius: 8px;
+      border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+      margin-bottom: 8px;
+    }
+    aside h3 { font-size: 0.8em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin: 14px 6px 4px; font-family: inherit; }
+    .scope-toggle { display: flex; gap: 12px; font-size: 0.82em; margin: 2px 6px 10px; color: var(--muted); }
+    .scope-toggle label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+    .country {
+      display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 6px;
+      padding: 5px 6px; border-radius: 6px; cursor: pointer; font-size: 0.9em;
+    }
+    .country:hover { background: var(--accent-soft); }
+    .country.pinned { background: var(--ink); color: var(--bg); }
+    .country.pinned .meter { background: color-mix(in srgb, var(--bg) 25%, transparent); }
+    .country .sw { width: 22px; height: 14px; }
+    .country .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .country .count { font-size: 0.78em; opacity: 0.75; font-variant-numeric: tabular-nums; }
+    .meter { grid-column: 2 / -1; height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; }
+    .meter i { display: block; height: 100%; background: var(--accent); }
+    .hint { font-size: 0.78em; color: var(--muted); margin: 2px 6px 6px; line-height: 1.4; }
+
+    main { overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+    .view { display: none; flex: 1; min-height: 0; }
+    .view.on { display: flex; }
+
+    /* Sub-tabs (ages, groups, unit kinds) */
+    .subtabs { display: flex; gap: 18px; padding: 10px 20px 0; border-bottom: 1px solid var(--line); background: var(--bg); position: sticky; top: 0; left: 0; z-index: 3; }
+    .subtabs button { font: inherit; background: none; border: none; color: var(--muted); padding: 6px 0 9px; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+    .subtabs button.on { color: var(--ink); border-bottom-color: var(--accent); }
+    .subtabs button span { font-size: 0.8em; margin-left: 4px; font-variant-numeric: tabular-nums; }
+    .chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 20px; background: var(--bg); position: sticky; top: 41px; left: 0; z-index: 3; border-bottom: 1px solid var(--line); align-items: center; }
+    .chips button { font: inherit; font-size: 0.8em; border: 1px solid var(--line); background: transparent; color: var(--ink); padding: 3px 11px; border-radius: 999px; cursor: pointer; }
+    .chips button.on { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    .chips button span { opacity: 0.7; margin-left: 4px; font-variant-numeric: tabular-nums; }
+    .legend { margin-left: auto; display: flex; gap: 14px; align-items: center; font-size: 0.78em; color: var(--muted); }
+    .legend i { display: inline-block; width: 14px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; border: 1px solid var(--line); background: var(--node); }
+    .legend i.has { border-color: var(--arrow-on); }
+    .legend i.av { border: 1.5px dashed var(--accent); }
+    .legend i.lk { opacity: 0.35; }
+
+    /* Advance tree */
+    #techView { flex-direction: row; }
+    .tree-wrap { flex: 1; overflow: auto; position: relative; min-width: 0; }
+    #tree { position: relative; margin: 8px 20px 40px; }
+    #tree svg { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+    .node {
+      position: absolute;
+      display: flex; align-items: center; gap: 8px;
+      padding: 4px 8px 4px 4px;
+      background: var(--node);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 0.8em; line-height: 1.2;
+      cursor: pointer;
+      transition: opacity 0.15s, filter 0.15s, border-color 0.15s;
+    }
+    .node img, .node .noimg { width: 38px; height: 38px; flex: none; }
+    .node .noimg { border-radius: 6px; background: color-mix(in srgb, var(--line) 50%, transparent); }
+    .node.has { border-color: var(--arrow-on); box-shadow: 0 1px 0 var(--line); }
+    .node.av { opacity: 0.85; border: 1.5px dashed var(--accent); }
+    .node.lk { opacity: 0.32; filter: grayscale(1); }
+    .node:hover, .node.focus { opacity: 1; filter: none; outline: 2px solid var(--accent); outline-offset: 1px; z-index: 2; }
+    .node .x { position: absolute; top: 2px; right: 4px; font-size: 0.8em; color: var(--muted); }
+    .node .cond { position: absolute; bottom: 1px; right: 5px; font-size: 0.7em; color: var(--muted); }
+    path.arr { fill: none; stroke: var(--arrow); stroke-width: 1.3; }
+    path.arr.on { stroke: var(--arrow-on); stroke-width: 1.8; }
+    path.arr.hl { stroke: var(--accent); stroke-width: 2.4; }
+    .tree-note { font-size: 0.78em; color: var(--muted); padding: 8px 20px 0; line-height: 1.45; }
+
+    /* Detail panel */
+    .detail { width: 330px; flex: none; border-left: 1px solid var(--line); background: var(--panel); overflow-y: auto; padding: 18px; font-size: 0.88em; line-height: 1.45; }
+    .detail .empty { color: var(--muted); }
+    .detail .top { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+    .detail .top img { width: 64px; height: 64px; }
+    .detail h2 { font-size: 1.3em; line-height: 1.15; }
+    .detail .meta { color: var(--muted); font-size: 0.85em; margin-top: 2px; }
+    .detail h3 { font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 14px 0 5px; font-family: inherit; font-weight: 600; }
+    .detail p.desc { font-style: italic; color: var(--muted); }
+    .detail ul { list-style: none; }
+    .detail li { padding: 2px 0; display: flex; justify-content: space-between; gap: 10px; }
+    .detail li .k { color: var(--muted); font-size: 0.85em; text-align: right; }
+    .detail li .v { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+    .detail li .v.good { color: var(--good); } .detail li .v.bad { color: var(--bad); }
+    .detail .status { display: inline-block; margin-top: 6px; }
+    .swatches { display: flex; flex-wrap: wrap; gap: 4px; }
+    .swatches .sw { cursor: pointer; width: 22px; height: 15px; }
+    .link { color: var(--accent); cursor: pointer; text-decoration: underline; text-decoration-color: var(--line); }
+    .muted { color: var(--muted); }
+    .detail details { margin-top: 4px; }
+    .detail details summary { cursor: pointer; padding: 3px 0; }
+    .detail details summary .k { float: right; color: var(--muted); }
+    .detail details ul { padding: 2px 0 6px 12px; }
+    .sheet-close, .picker-head { display: none; }
+
+    /* Countries table */
+    #countryView { flex-direction: row; }
+    .table-main { flex: 1; overflow: auto; min-width: 0; padding-bottom: 40px; }
+    .table-main .note { font-size: 0.78em; color: var(--muted); padding: 10px 20px 0; line-height: 1.45; }
+    table { border-collapse: collapse; width: calc(100% - 40px); margin: 12px 20px 8px; font-size: 0.88em; }
+    th { text-align: left; font-weight: 600; font-size: 0.78em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 8px; border-bottom: 1px solid var(--line); cursor: pointer; white-space: nowrap; user-select: none; position: sticky; top: 0; background: var(--bg); }
+    th.sorted { color: var(--ink); }
+    th.num, td.num { text-align: right; }
+    td { padding: 5px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; white-space: nowrap; }
+    td.num { font-variant-numeric: tabular-nums; }
+    td .sw { vertical-align: -2px; margin-right: 6px; }
+    tr { cursor: pointer; }
+    tr:hover td { background: var(--accent-soft); }
+    tr.pinned td { background: var(--accent-soft); font-weight: 600; }
+    .showall { display: block; margin: 8px 20px; font: inherit; font-size: 0.85em; border: 1px solid var(--line); background: transparent; color: var(--accent); padding: 6px 14px; border-radius: 999px; cursor: pointer; }
+    .stack { display: flex; height: 10px; border-radius: 3px; overflow: hidden; width: 160px; }
+    .stack i { display: block; height: 100%; }
+    .stack i + i { border-left: 1px solid var(--bg); }
+
+    /* Units & buildings */
+    #unitView { overflow: auto; flex-direction: column; }
+    .unit-note { font-size: 0.78em; color: var(--muted); padding: 10px 20px 0; line-height: 1.45; max-width: 980px; }
+    #unitGrid { display: grid; gap: 10px 14px; padding: 12px 20px 40px; align-items: start; width: max-content; }
+    .ucol-head { font-family: Georgia, serif; color: var(--muted); font-size: 0.95em; padding-bottom: 2px; border-bottom: 1px dashed var(--line); position: sticky; top: 44px; background: var(--bg); z-index: 1; }
+    .urow-head { font-family: Georgia, serif; font-size: 1em; padding-top: 8px; position: sticky; left: 0; background: var(--bg); z-index: 1; overflow-wrap: anywhere; }
+    .ucell { display: flex; flex-direction: column; gap: 10px; }
+    .ucard { width: 206px; background: var(--node); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 0.8em; line-height: 1.35; transition: opacity 0.15s, filter 0.15s; }
+    .ucard.has { border-color: var(--arrow-on); }
+    .ucard.lk { opacity: 0.4; filter: grayscale(1); }
+    .ucard:hover { opacity: 1; filter: none; }
+    .ucard .uhead { display: flex; gap: 8px; align-items: center; padding: 8px 10px 0; }
+    .ucard .uhead img { width: 36px; height: 36px; flex: none; }
+    .ucard .uhead b { font-family: Georgia, serif; font-weight: normal; font-size: 1.2em; line-height: 1.15; }
+    .ubody { padding: 6px 10px 10px; }
+    .ustatus { color: var(--muted); margin: 0 0 6px; }
+    .ubadges { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+    .ubadges .pill { font-size: 0.85em; }
+    .ustats { list-style: none; }
+    .ustats li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 1px 0; }
+    .ustats li .v { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .ustats li .v.good { color: var(--good); } .ustats li .v.bad { color: var(--bad); }
+    .ulink { margin-top: 6px; color: var(--muted); }
+
+    footer { font-size: 0.75em; color: var(--muted); padding: 8px 20px; border-top: 1px solid var(--line); }
+    footer a { color: inherit; }
+
+    @media (max-width: 1280px) { .tabs .long, .build .long { display: none; } header { column-gap: 16px; } }
+
+    /* Phones: one column. The country list becomes a full-screen picker
+       opened from the country button in the header, advance details slide up
+       as a bottom sheet, and wide tables scroll sideways. */
+    @media (max-width: 760px) {
+      body { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; height: 100dvh; }
+      header, main { min-width: 0; }
+      header { padding: 10px 12px 8px; gap: 8px; }
+      header h1 { font-size: 1.15em; }
+      .tabs { order: 3; flex: 1 0 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -12px; padding: 0 12px; }
+      .tabs::-webkit-scrollbar { display: none; }
+      .tabs button { flex: none; white-space: nowrap; font-size: 0.85em; padding: 6px 12px; }
+      .tabs .long { display: none; }
+      .current { order: 2; flex: 1 0 100%; margin-left: 0; gap: 8px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; font-size: 0.9em; }
+      .current > div { min-width: 0; flex: 1; }
+      .current .cstats { white-space: normal; }
+      .current::after { content: "Change ▾"; flex: none; font-size: 0.8em; color: var(--accent); }
+      aside { display: none; }
+      body.picker-open aside { display: block; position: fixed; inset: 0; z-index: 40; border: none; padding: 12px 12px 40px; overflow-y: auto; }
+      .picker-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+      .picker-head b { font-family: Georgia, serif; font-weight: normal; font-size: 1.2em; }
+      .picker-head button { font: inherit; border: none; background: var(--ink); color: var(--bg); padding: 7px 16px; border-radius: 999px; }
+      aside input[type=search] { font-size: 16px; }
+      .scope-toggle { gap: 6px; margin: 2px 0 12px; font-size: 0.9em; }
+      .scope-toggle label { padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); }
+      .scope-toggle label:has(input:checked) { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+      .scope-toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+      aside .hint { display: none; }
+      .country { padding: 9px 8px; font-size: 1em; }
+      footer { display: none; }
+      .subtabs { padding: 8px 12px 0; gap: 14px; overflow-x: auto; white-space: nowrap; }
+      .chips { padding: 8px 12px; top: 37px; }
+      #tree { margin: 8px 12px 60px; }
+      .detail { display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; width: auto; max-height: 60dvh;
+        border-left: none; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; box-shadow: 0 -8px 30px rgba(0,0,0,0.35);
+        padding: 16px 16px 28px; transform: translateY(105%); transition: transform 0.2s ease; }
+      body.sheet-open .detail { transform: none; }
+      .sheet-close { display: block; float: right; font: inherit; font-size: 1.1em; border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 32px; height: 32px; border-radius: 50%; margin: -4px -4px 6px 8px; }
+      #countryView { flex-direction: column; overflow-y: auto; }
+      .table-main { overflow-x: auto; flex: none; }
+      table { font-size: 0.8em; margin: 10px 12px 8px; width: auto; }
+      .unit-note { padding: 8px 12px 0; }
+      #unitGrid { padding: 10px 12px 30px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Europa Universalis V <small id="startLabel">1337 start</small></h1>
+    <!-- deploy.sh fills in the commit; a local preview has no build to show. -->
+    <a class="build" id="buildLink" href="https://github.com/jane-natucci/eu5tech/commit/__BUILD_SHA__" target="_blank" rel="noopener" title="View the deployed source commit on GitHub"><span class="long">Build </span>__BUILD_LABEL__</a>
+    <div class="tabs" id="tabs">
+      <button data-view="techView" class="on">Advances</button>
+      <button data-view="countryView">Countries</button>
+      <button data-view="unitView">Units<span class="long"> &amp; buildings</span></button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle"></button>
+    <div class="current" id="current"></div>
+  </header>
+
+  <aside>
+    <div class="picker-head"><b>Choose a country</b><button type="button" id="pickerDone">Done</button></div>
+    <input id="search" type="search" placeholder="Search any country…" autocomplete="off">
+    <div class="scope-toggle">
+      <label><input type="radio" name="scope" value="europe" checked> Europe</label>
+      <label><input type="radio" name="scope" value="all"> Whole world</label>
+    </div>
+    <p class="hint">Hover over a country to preview it; click one to pin it.</p>
+    <div id="countries"></div>
+  </aside>
+
+  <main>
+    <section class="view on" id="techView">
+      <div class="tree-wrap" id="treeWrap">
+        <div class="subtabs" id="ageTabs"></div>
+        <div class="chips" id="groupChips"></div>
+        <p class="tree-note" id="treeNote"></p>
+        <div id="tree"></div>
+      </div>
+      <div class="detail" id="detail"></div>
+    </section>
+
+    <section class="view" id="countryView">
+      <div class="table-main" id="tableMain">
+        <p class="note" id="countryNote"></p>
+        <table id="countryTable"></table>
+        <button type="button" class="showall" id="showAll" hidden></button>
+      </div>
+      <div class="detail" id="countryDetail"></div>
+    </section>
+
+    <section class="view" id="unitView">
+      <div class="subtabs" id="unitTabs"></div>
+      <p class="unit-note" id="unitNote"></p>
+      <div id="unitGrid"></div>
+    </section>
+
+    <footer>
+      Unofficial fan page. Data and icons come from the Europa Universalis V game files<span id="gameVersion"></span>; Europa Universalis V is © Paradox Interactive.
+      Starting positions come from a new 1337 game; population is in thousands; manpower and sailors are in the game's own units.
+    </footer>
+  </main>
+
+  <script>
+    // deploy.sh replaces the placeholder with a digest of the data. A local
+    // preview still has the placeholder, which never changes, so browsers
+    // would keep serving stale data.json after a re-extract -- use a fresh
+    // value per page load there instead. (Split so the substitution can't
+    // rewrite the "is this a local preview" checks too.)
+    if (document.getElementById("buildLink").href.includes("__BUILD" + "_SHA__")) document.getElementById("buildLink").remove();
+    const DATA_VERSION = "__DATA_VERSION__";
+    const assetVersion = DATA_VERSION.startsWith("__") ? String(Date.now()) : DATA_VERSION;
+    const asset = path => `/eu5/${path}?v=${assetVersion}`;
+
+    const esc = s => String(s ?? "").replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+    const n0 = x => Math.round(x ?? 0).toLocaleString("en");
+    const n1 = x => (Math.round((x ?? 0) * 10) / 10).toLocaleString("en");
+    const n2 = x => (Math.round((x ?? 0) * 100) / 100).toLocaleString("en");
+    const cap = s => s ? s[0].toUpperCase() + s.slice(1) : s;
+    // Population is in thousands in the game's own units.
+    const popFmt = p => p == null ? "–" : p >= 1000 ? `${n2(p / 1000)}M` : `${n0(p)}k`;
+    const sum = obj => Object.values(obj || {}).reduce((a, b) => a + b, 0);
+
+    const GROUPS = [
+      ["all", "All"], ["core", "Core"], ["buildings", "Buildings"], ["military", "Military"],
+      ["government", "Government"], ["choices", "Choices"], ["mine", "Country-specific"]
+    ];
+    const GENERIC = new Set(["core", "buildings", "military", "government", "choices"]);
+    const FOR_NAMES = { adm: "Administrative", dip: "Diplomatic", mil: "Military" };
+    const NODE_W = 178, NODE_H = 48, COL_GAP = 46, ROW_GAP = 12, HEAD = 10;
+    const UNIT_KINDS = { units: "Army units", ships: "Ships", buildings: "Buildings" };
+
+    const state = {
+      data: null, adv: {}, byTag: {}, ageOf: {}, pinned: "FRA", preview: null,
+      age: "age_1_traditions", group: "core", focusAdv: null, scope: "europe",
+      countrySort: "development", countryDesc: true, countryLimit: 300, unitKind: "units", layouts: {}
+    };
+
+    const current = () => state.byTag[state.preview || state.pinned];
+    const inScope = c => state.scope === "all" || c.continent === "europe";
+    const regiments = c => sum(c.army);
+    const shipCount = c => sum(c.navy);
+    const viewOn = id => document.getElementById(id).classList.contains("on");
+    const swatch = (c, cls = "") => `<span class="sw ${cls}" style="background:${c.color || "#888"}" title="${esc(c.name)}"></span>`;
+    const ageShort = id => id.replace(/^age_\d+_/, "");
+    const ageByShort = short => state.data.ages.find(a => ageShort(a.id) === short)?.id;
+
+    // --- Hash: "#TAG" or "#TAG/<view>/..." ----------------------------------------
+    //   #FRA                                  advances, default age/group
+    //   #FRA/advances/renaissance/buildings   an age and group
+    //   #FRA/advances/renaissance/core/<id>   ...with one advance selected
+    //   #FRA/countries/<sort>                 countries table sorted by a column
+    //   #FRA/units/<kind>                     units | ships | buildings
+    // syncHash() keeps the address bar in step with every click, so a copied
+    // link always reopens exactly where it was copied from.
+    const VIEW_HASH = { techView: "advances", countryView: "countries", unitView: "units" };
+    const HASH_VIEW = Object.fromEntries(Object.entries(VIEW_HASH).map(([k, v]) => [v, k]));
+    function parseHash() {
+      const [tagPart, viewPart, a, b, c] = location.hash.slice(1).split("/");
+      return { tag: tagPart ? tagPart.toUpperCase() : null, view: HASH_VIEW[viewPart] || null, a, b, c };
+    }
+    function syncHash() {
+      const viewId = document.querySelector(".view.on")?.id;
+      let path = "#" + state.pinned;
+      if (viewId === "techView") {
+        const plain = state.age === "age_1_traditions" && state.group === "core" && !state.focusAdv;
+        if (!plain) path += `/advances/${ageShort(state.age)}/${state.group}` + (state.focusAdv ? `/${state.focusAdv}` : "");
+      } else if (viewId === "countryView") path += `/countries/${state.countrySort}`;
+      else if (viewId === "unitView") path += `/units/${state.unitKind}`;
+      history.replaceState(null, "", path);
+    }
+    function applyHash() {
+      const { tag, view, a, b, c } = parseHash();
+      if (state.byTag[tag]) state.pinned = tag;
+      if (view === "techView" || (!view && tag)) {
+        const age = a && ageByShort(a);
+        if (age) state.age = age;
+        if (b && GROUPS.some(([g]) => g === b)) state.group = b;
+        state.focusAdv = c && state.adv[c] ? c : null;
+        if (state.focusAdv) { state.age = state.adv[c].age; if (state.group === "mine" || !groupOf(state.adv[c])) state.group = state.adv[c].group === "special" ? "mine" : "all"; }
+      } else if (view === "countryView") {
+        if (a && COLS.some(([k]) => k === a)) state.countrySort = a;
+      } else if (view === "unitView") {
+        if (a in UNIT_KINDS) state.unitKind = a;
+      }
+      return view || "techView";
+    }
+    // Which group tab an advance belongs on, for linking straight to it.
+    const groupOf = adv => adv.group === "special" ? "mine" : adv.group;
+
+    fetch(asset("data.json")).then(r => r.json()).then(data => {
+      state.data = data;
+      if (data.game_version) document.getElementById("gameVersion").textContent = ` (version ${data.game_version})`;
+      document.getElementById("startLabel").textContent = `${data.start_date?.split(".")[0] || 1337} start`;
+      data.advances.forEach((a, i) => { a.i = i; a.requires ||= []; state.adv[a.id] = a; });
+      data.countries.forEach(c => { c.advances ||= []; });
+      data.units.forEach(u => { u.unlocked_by ||= []; });
+      data.buildings.forEach(b => { b.unlocked_by ||= []; });
+      data.countries.forEach(c => { c.advSet = new Set(c.advances); state.byTag[c.tag] = c; });
+      if (!state.byTag[state.pinned]) state.pinned = data.countries[0].tag;
+      const view = applyHash();
+      showView(view, { sync: false });
+      if (state.focusAdv) requestAnimationFrame(() => scrollToAdv(state.focusAdv));
+    });
+
+    // --- Advance tree ----------------------------------------------------------
+    const hasAdv = (c, a) => c.advSet.has(a.i);
+    // Which advances the open Age + group tab shows for a country. "Country-
+    // specific" lists the advances gated to this country (by tag) or that it
+    // actually starts with; the other tabs are the ungated, generic trees.
+    function inGroup(a, c) {
+      if (state.group === "mine") return a.group === "special" && (hasAdv(c, a) || a.tags?.includes(c.tag));
+      return state.group === "all" ? GENERIC.has(a.group) : a.group === state.group;
+    }
+    const nodesFor = c => state.data.advances.filter(a => a.age === state.age && inGroup(a, c));
+
+    // Columns: one per step of prerequisite chain inside the shown set.
+    // Rows: each advance goes to the free row nearest the average row of its
+    // prerequisites. Cached per Age/group (and country, for the specific tab).
+    function layoutFor(nodes, key) {
+      if (state.layouts[key]) return state.layouts[key];
+      const inSet = new Set(nodes.map(n => n.id));
+      const depth = {}, visiting = new Set();
+      const depthOf = n => {
+        if (depth[n.id] !== undefined) return depth[n.id];
+        if (visiting.has(n.id)) return 0;
+        visiting.add(n.id);
+        const d = Math.max(-1, ...n.requires.filter(id => inSet.has(id)).map(id => depthOf(state.adv[id]))) + 1;
+        visiting.delete(n.id);
+        return depth[n.id] = d;
+      };
+      nodes.forEach(depthOf);
+      const cols = Math.max(0, ...nodes.map(n => depth[n.id])) + 1;
+      const pos = {}, used = {};
+      for (let c = 0; c < cols; c++) {
+        used[c] = new Set();
+        const here = nodes.filter(n => depth[n.id] === c).map(n => {
+          const rows = n.requires.filter(id => pos[id]).map(id => pos[id].row);
+          return { n, want: rows.length ? rows.reduce((a, b) => a + b) / rows.length : null };
+        }).sort((a, b) => (a.want ?? 1e9) - (b.want ?? 1e9) || a.n.name.localeCompare(b.n.name));
+        for (const { n, want } of here) {
+          let row;
+          if (want === null) { row = 0; while (used[c].has(row)) row++; }
+          else {
+            const base = Math.max(0, Math.round(want));
+            for (let d = 0; ; d++) {
+              if (!used[c].has(base + d)) { row = base + d; break; }
+              if (base - d >= 0 && !used[c].has(base - d)) { row = base - d; break; }
+            }
+          }
+          used[c].add(row);
+          pos[n.id] = { col: c, row, x: c * (NODE_W + COL_GAP), y: HEAD + row * (NODE_H + ROW_GAP) };
+        }
+      }
+      const rows = Math.max(0, ...Object.values(pos).map(p => p.row)) + 1;
+      return state.layouts[key] = { nodes, pos, width: cols * (NODE_W + COL_GAP), height: HEAD + rows * (NODE_H + ROW_GAP) };
+    }
+
+    function advStatus(c, a) {
+      if (hasAdv(c, a)) return "has";
+      return a.requires.every(id => hasAdv(c, state.adv[id])) ? "av" : "lk";
+    }
+    const iconSrc = a => a.icon ? asset(`icons/${a.icon}.png`) : null;
+    const currentLayout = () => {
+      const c = current(), nodes = nodesFor(c);
+      return layoutFor(nodes, `${state.age}|${state.group}|${state.group === "mine" ? c.tag : ""}`);
+    };
+
+    function renderTree() {
+      const c = current(), L = currentLayout();
+      const tree = document.getElementById("tree");
+      tree.style.width = L.width + "px"; tree.style.height = L.height + "px";
+      let paths = "";
+      for (const a of L.nodes) {
+        const to = L.pos[a.id];
+        for (const id of a.requires) {
+          const from = L.pos[id]; if (!from) continue;
+          const x1 = from.x + NODE_W, y1 = from.y + NODE_H / 2, x2 = to.x - 3, y2 = to.y + NODE_H / 2, mx = (x1 + x2) / 2;
+          const on = hasAdv(c, state.adv[id]) && hasAdv(c, a);
+          const hl = state.focusAdv && (state.focusAdv === a.id || state.focusAdv === id);
+          paths += `<path class="arr${on ? " on" : ""}${hl ? " hl" : ""}" marker-end="url(#${hl ? "hd-hl" : on ? "hd-on" : "hd"})" d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}"/>`;
+        }
+      }
+      let html = `<svg width="${L.width}" height="${L.height}"><defs>
+        ${[["hd", "--arrow"], ["hd-on", "--arrow-on"], ["hd-hl", "--accent"]].map(([id, v]) =>
+          `<marker id="${id}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(${v})"/></marker>`).join("")}
+        </defs>${paths}</svg>`;
+      for (const a of L.nodes) {
+        const p = L.pos[a.id];
+        const foreign = a.requires.filter(id => !L.pos[id]);
+        const src = iconSrc(a);
+        html += `<div class="node ${advStatus(c, a)}${state.focusAdv === a.id ? " focus" : ""}" data-adv="${a.id}" style="left:${p.x}px;top:${p.y}px;width:${NODE_W}px;height:${NODE_H}px">
+          ${src ? `<img src="${src}" alt="" loading="lazy">` : `<span class="noimg"></span>`}<span>${esc(a.name)}</span>
+          ${foreign.length ? `<span class="x" title="Also needs: ${esc(foreign.map(id => state.adv[id].name).join(", "))}">↗</span>` : ""}
+          ${a.conditional && !a.tags ? `<span class="cond" title="Only some countries can research this">◆</span>` : ""}</div>`;
+      }
+      tree.innerHTML = html;
+    }
+
+    function fmtEffect(e) {
+      if (e.v === undefined) return { text: "", cls: "" };
+      const pct = e.pct, v = pct ? e.v * 100 : e.v;
+      const num = Math.abs(v) >= 100 ? Math.round(v) : Math.round(v * 100) / 100;
+      const text = (v > 0 ? "+" : "") + num.toLocaleString("en") + (pct ? "%" : "");
+      const good = (e.good || "good") === "good" ? v > 0 : e.good === "bad" ? v < 0 : null;
+      return { text, cls: good === null ? "" : good ? "good" : "bad" };
+    }
+    const effectsList = list => list?.length ? `<ul>${list.map(e => { const f = fmtEffect(e); return `<li><span>${esc(e.name)}</span><span class="v ${f.cls}">${f.text}</span></li>`; }).join("")}</ul>` : "";
+
+    function renderDetail() {
+      const el = document.getElementById("detail");
+      const a = state.adv[state.focusAdv];
+      if (!a) {
+        el.innerHTML = `<button type="button" class="sheet-close" data-close aria-label="Close">✕</button><p class="empty">Hover over an advance to see what it does and which countries start with it. Click one to pin it, and copy the address bar to share it.</p>`;
+        return;
+      }
+      const c = current(), st = advStatus(c, a);
+      const statusText = { has: `${c.name} starts with this`, av: `${c.name} can research this`, lk: `${c.name} is missing prerequisites` }[st];
+      const holders = state.data.countries.filter(x => inScope(x) && hasAdv(x, a)).sort((x, y) => y.development - x.development);
+      const total = state.data.countries.filter(inScope).length;
+      const ageName = state.data.ages.find(x => x.id === a.age)?.name;
+      const link = id => `<span class="link" data-goto="${id}">${esc(state.adv[id].name)}</span>`;
+      const src = iconSrc(a);
+      el.innerHTML = `<button type="button" class="sheet-close" data-close aria-label="Close">✕</button>
+        <div class="top">${src ? `<img src="${src}" alt="">` : ""}<div><h2>${esc(a.name)}</h2>
+          <div class="meta">Age of ${esc(ageName)} · ${esc(cap(a.group === "special" ? "country-specific" : a.group))}${a.for ? ` · ${FOR_NAMES[a.for] || a.for}` : ""}</div></div></div>
+        <span class="pill status">${esc(statusText)}</span>
+        ${a.desc ? `<h3>Description</h3><p class="desc">${esc(a.desc)}</p>` : ""}
+        ${a.effects ? `<h3>Effects</h3>${effectsList(a.effects)}` : ""}
+        ${a.unlocks ? `<h3>Unlocks</h3><ul>${a.unlocks.map(u => `<li><span>${esc(u.name)}</span><span class="k">${esc(u.kind.replace(/_/g, " "))}</span></li>`).join("")}</ul>` : ""}
+        ${a.requires.length ? `<h3>Requires</h3><p>${a.requires.map(link).join(", ")}</p>` : ""}
+        ${a.institution ? `<h3>Needs the institution</h3><p>${esc(a.institution)}</p>` : ""}
+        ${a.conditional ? `<h3>Availability</h3><p class="muted">${a.tags ? `Only for ${a.tags.join(", ")}.` : "Only some countries can research this (it depends on culture, religion, government or similar)."}</p>` : ""}
+        <h3>${a.group === "special" ? "Countries that start with it" : `${state.scope === "all" ? "Countries" : "European countries"} that start with it`} (${holders.length}/${total})</h3>
+        <div class="swatches">${holders.slice(0, 120).map(x => swatch(x).replace("<span", `<span data-pin="${x.tag}"`)).join("") || "<em>None</em>"}</div>
+        ${holders.length > 120 ? `<p class="muted">…and ${holders.length - 120} more.</p>` : ""}`;
+    }
+    function scrollToAdv(id) {
+      const p = currentLayout().pos[id];
+      if (!p) return;
+      document.getElementById("treeWrap").scrollTo({ left: p.x - 200, top: p.y - 60, behavior: "smooth" });
+    }
+
+    function renderTechTabs() {
+      const c = current();
+      const generic = state.data.advances;
+      document.getElementById("ageTabs").innerHTML = state.data.ages.map(age => {
+        const ofAge = generic.filter(a => a.age === age.id && (state.group === "mine" ? a.group === "special" && (hasAdv(c, a) || a.tags?.includes(c.tag)) : state.group === "all" ? GENERIC.has(a.group) : a.group === state.group));
+        return `<button data-age="${age.id}" class="${age.id === state.age ? "on" : ""}">${esc(age.name)}<span>${ofAge.filter(a => hasAdv(c, a)).length}/${ofAge.length}</span></button>`;
+      }).join("") + `<div class="legend"><span><i class="has"></i>Starts with</span><span><i class="av"></i>Can research</span><span><i class="lk"></i>Locked</span></div>`;
+      document.getElementById("groupChips").innerHTML = GROUPS.map(([g, label]) => {
+        const n = state.data.advances.filter(a => a.age === state.age && (g === "mine" ? a.group === "special" && (hasAdv(c, a) || a.tags?.includes(c.tag)) : g === "all" ? GENERIC.has(a.group) : a.group === g)).length;
+        return `<button data-group="${g}" class="${g === state.group ? "on" : ""}">${label}<span>${n}</span></button>`;
+      }).join("");
+      document.getElementById("treeNote").textContent = state.group === "mine"
+        ? `Advances only some countries get: those gated to ${c.name}'s tag, plus everything else it starts with from culture, religion or government.`
+        : `Core is the Age's own tree; the other groups are the advances that unlock buildings, units, reforms and the Age's three choices. ◆ marks advances only some countries can research.`;
+    }
+
+    // --- Sidebar / header --------------------------------------------------
+    // Ranks countries by whatever the open tab is about: advances started with
+    // in the open Age/group, the countries table's sort column, or how many
+    // units/buildings of the open kind it can build.
+    const COLS = [
+      ["name", "Country"], ["locations", "Locations"], ["development", "Development"], ["population", "Population"],
+      ["tax", "Tax"], ["income", "Income"], ["gold", "Gold"], ["prestige", "Prestige"], ["stability", "Stability"],
+      ["max_manpower", "Manpower"], ["max_sailors", "Sailors"], ["regiments", "Regiments"], ["ships", "Ships"], ["advances", "Advances"]
+    ];
+    const colValue = (c, k) => ({ regiments: regiments(c), ships: shipCount(c), advances: c.advances.length, name: c.development }[k] ?? c[k] ?? 0);
+    const colFmt = (c, k) => ({
+      locations: n0, development: n0, population: popFmt, tax: n1, income: n1, gold: n0, prestige: n1, stability: n1,
+      max_manpower: n2, max_sailors: n2, regiments: n0, ships: n0, advances: n0
+    }[k] || n0)(colValue(c, k));
+
+    function sidebarMetric() {
+      if (viewOn("countryView")) {
+        const k = state.countrySort === "name" ? "development" : state.countrySort;
+        return { label: COLS.find(([key]) => key === k)[1].toLowerCase(), value: c => colValue(c, k), fmt: c => colFmt(c, k) };
+      }
+      if (viewOn("unitView")) {
+        const list = unitItems();
+        return { label: `${UNIT_KINDS[state.unitKind].toLowerCase()} it can build`, value: c => list.filter(i => canBuild(c, i)).length, total: list.length };
+      }
+      const probe = current();
+      const set = nodesFor(probe);
+      const ids = new Set(set.map(a => a.i));
+      const specific = state.group === "mine";
+      return {
+        label: `${state.group === "all" ? "" : GROUPS.find(([g]) => g === state.group)[1].toLowerCase() + " "}advances`,
+        value: c => specific ? c.advances.filter(i => state.data.advances[i].group === "special" && state.data.advances[i].age === state.age).length : c.advances.reduce((n, i) => n + (ids.has(i) ? 1 : 0), 0),
+        total: specific ? null : set.length
+      };
+    }
+
+    function renderSidebar() {
+      const q = document.getElementById("search").value.trim().toLowerCase();
+      const match = c => !q || c.name.toLowerCase().includes(q) || c.tag.toLowerCase() === q;
+      const m = sidebarMetric();
+      const rows = state.data.countries.filter(c => inScope(c) && match(c)).map(c => [c, m.value(c)])
+        .sort((a, b) => b[1] - a[1] || b[0].development - a[0].development || a[0].name.localeCompare(b[0].name));
+      const max = m.total ?? Math.max(...rows.map(r => r[1]), 1);
+      document.getElementById("countries").innerHTML = rows.length
+        ? `<h3>${state.scope === "all" ? "All countries" : "Europe"} · ${esc(m.label)}</h3>` + rows.map(([c, v]) =>
+          `<div class="country${c.tag === state.pinned ? " pinned" : ""}" data-tag="${c.tag}">${swatch(c)}<span class="name">${esc(c.name)}</span><span class="count">${m.fmt ? m.fmt(c) : n0(v)}${m.total ? `/${m.total}` : ""}</span>
+          <span class="meter"><i style="width:${Math.min(100, v / max * 100)}%"></i></span></div>`).join("")
+        : `<p class="hint">No matches.</p>`;
+    }
+
+    function renderHeader() {
+      const c = current();
+      document.getElementById("current").innerHTML = `${swatch(c, "big")}<div><b class="cname">${esc(c.name)}</b>
+        <span class="cstats" title="${esc(`${c.advances.length} advances · ${n0(c.development)} development · ${popFmt(c.population)} people · ${c.locations} locations · ${regiments(c)} regiments · ${shipCount(c)} ships`)}">${c.advances.length} advances · ${n0(c.development)} dev · ${popFmt(c.population)} · ${c.locations} locations · ${regiments(c)} regiments · ${shipCount(c)} ships</span></div>
+        ${c.great_power ? `<span class="pill" title="Great power rank at the start">Great power #${c.great_power}</span>` : ""}
+        ${state.preview && state.preview !== state.pinned ? `<span class="pill">preview</span>` : ""}`;
+    }
+
+    // --- Countries table ---------------------------------------------------------
+    function renderCountries() {
+      const list = state.data.countries.filter(inScope);
+      const k = state.countrySort, dir = state.countryDesc ? -1 : 1;
+      const rows = [...list].sort((a, b) => {
+        const x = k === "name" ? a.name : colValue(a, k), y = k === "name" ? b.name : colValue(b, k);
+        return (typeof x === "string" ? x.localeCompare(y) : x - y) * dir || a.name.localeCompare(b.name);
+      });
+      const shown = rows.slice(0, state.countryLimit);
+      document.getElementById("countryNote").textContent = `${list.length} countries ${state.scope === "all" ? "in the world" : "in Europe"} at the 1337 start. Development is the sum over every location a country owns; population is in thousands, manpower and sailors are in the game's own units.`;
+      document.getElementById("countryTable").innerHTML =
+        `<tr>${COLS.map(([key, label]) => `<th data-sort="${key}" class="${key === "name" ? "" : "num"} ${key === k ? "sorted" : ""}">${label}${key === k ? (state.countryDesc ? " ↓" : " ↑") : ""}</th>`).join("")}</tr>` +
+        shown.map(c => `<tr data-tag="${c.tag}" class="${c.tag === state.pinned ? "pinned" : ""}">
+          <td>${swatch(c)}${esc(c.name)}</td>${COLS.slice(1).map(([key]) => `<td class="num">${colFmt(c, key)}</td>`).join("")}</tr>`).join("");
+      const more = document.getElementById("showAll");
+      more.hidden = rows.length <= state.countryLimit;
+      more.textContent = `Show all ${rows.length} countries`;
+      renderCountryDetail();
+    }
+
+    function renderCountryDetail() {
+      const el = document.getElementById("countryDetail");
+      const c = current();
+      const unitName = id => state.data.units.find(u => u.id === id)?.name || id.replace(/^[an]_/, "").replace(/_/g, " ");
+      const comp = obj => Object.entries(obj || {}).sort((a, b) => b[1] - a[1]).map(([id, n]) => `<li><span>${esc(unitName(id))}</span><span class="v">${n}</span></li>`).join("");
+      const byAge = state.data.ages.map(age => {
+        const mine = c.advances.map(i => state.data.advances[i]).filter(a => a.age === age.id);
+        return mine.length ? `<details><summary>${esc(age.name)} <span class="k">${mine.length}</span></summary><ul>${mine.sort((x, y) => x.name.localeCompare(y.name)).map(a => `<li><span class="link" data-goto="${a.id}">${esc(a.name)}</span></li>`).join("")}</ul></details>` : "";
+      }).join("");
+      const sc = c.scores;
+      el.innerHTML = `<button type="button" class="sheet-close" data-close aria-label="Close">✕</button>
+        <div class="top">${swatch(c, "big")}<div><h2>${esc(c.name)}</h2>
+          <div class="meta">${esc(c.tag)}${c.great_power ? ` · great power #${c.great_power}` : ""}${c.type && c.type !== "Real" ? ` · ${esc(c.type)}` : ""}</div></div></div>
+        <ul>
+          ${c.capital ? `<li><span>Capital</span><span class="v">${esc(c.capital)}</span></li>` : ""}
+          ${c.region ? `<li><span>Region</span><span class="v">${esc(cap(c.region.replace(/_region$/, "").replace(/_/g, " ")))}</span></li>` : ""}
+          ${c.culture ? `<li><span>Culture</span><span class="v">${esc(c.culture)}</span></li>` : ""}
+          ${c.religion ? `<li><span>Religion</span><span class="v">${esc(c.religion)}</span></li>` : ""}
+          ${c.level != null ? `<li><span>Starting technology level</span><span class="v">${c.level}</span></li>` : ""}
+        </ul>
+        <h3>Land</h3><ul>
+          <li><span>Locations</span><span class="v">${n0(c.locations)}</span></li>
+          ${c.rank ? Object.entries(c.rank).map(([r, n]) => `<li><span class="muted">${esc(cap(r.replace(/_/g, " ")))}s</span><span class="v">${n}</span></li>`).join("") : ""}
+          <li><span>Development</span><span class="v">${n0(c.development)}</span></li>
+          <li><span>Population</span><span class="v">${popFmt(c.population)}</span></li>
+          <li><span>Tax base</span><span class="v">${n1(c.tax)}</span></li></ul>
+        <h3>Treasury &amp; state</h3><ul>
+          <li><span>Gold</span><span class="v">${n0(c.gold)}</span></li>
+          <li><span>Monthly income / expense</span><span class="v">${n1(c.income)} / ${n1(c.expense)}</span></li>
+          <li><span>Prestige</span><span class="v">${n1(c.prestige)}</span></li>
+          <li><span>Stability</span><span class="v">${n1(c.stability)}</span></li>
+          <li><span>Max manpower / sailors</span><span class="v">${n2(c.max_manpower)} / ${n2(c.max_sailors)}</span></li>
+          ${sc ? `<li><span>Rating (admin / diplomatic / military)</span><span class="v">${n1(sc.ADM)} / ${n1(sc.DIP)} / ${n1(sc.MIL)}</span></li>` : ""}</ul>
+        ${c.army ? `<h3>Regiments at the start (${regiments(c)})</h3><ul>${comp(c.army)}</ul>` : ""}
+        ${c.navy ? `<h3>Ships at the start (${shipCount(c)})</h3><ul>${comp(c.navy)}</ul>` : ""}
+        <h3>Starting advances (${c.advances.length})</h3>${byAge}`;
+    }
+
+    // --- Units & buildings -------------------------------------------------------
+    const itemsOf = kind => kind === "buildings" ? state.data.buildings : state.data.units.filter(u => u.kind === (kind === "units" ? "army" : "navy"));
+    // Culture- or country-specific items (only unlocked by country-specific
+    // advances) show up only for a country that can actually build them.
+    const isSpecial = i => i.unlocked_by.length > 0 && i.unlocked_by.every(id => state.adv[id]?.group === "special");
+    const unitItems = () => itemsOf(state.unitKind).filter(i => !isSpecial(i));
+    const visibleItems = (kind, c) => itemsOf(kind).filter(i => !isSpecial(i) || canBuild(c, i));
+    // Buildable if any advance that unlocks it is researched, or nothing needs unlocking.
+    const canBuild = (c, item) => !item.unlocked_by.length || item.unlocked_by.some(id => state.adv[id] && hasAdv(c, state.adv[id]));
+    function unitStats(u) {
+      const row = (k, v, cls = "") => v == null ? "" : `<li><span>${k}</span><span class="v ${cls}">${v}</span></li>`;
+      return u.kind === "army"
+        ? row("Combat power", n2(u.combat_power)) + row("Max strength", u.max_strength != null ? `${n2(u.max_strength * 100)}%` : null)
+        : row("Hull size", n0(u.hull_size)) + row("Cannons", u.cannons != null ? n0(u.cannons) : null) + row("Speed", n1(u.speed))
+          + row("Crew", u.crew != null ? n2(u.crew) : null) + row("Transport", u.transport != null ? n2(u.transport) : null);
+    }
+    function unitCard(c, item, isBuilding) {
+      const can = canBuild(c, item);
+      const link = item.unlocked_by.filter(id => state.adv[id]).map(id => `<span class="link" data-goto="${id}">${esc(state.adv[id].name)}</span>`).join(", ");
+      const src = item.icon ? asset(`icons/${item.icon}.png`) : null;
+      const badges = isBuilding
+        ? (item.sizes || []).map(s => `<span class="pill">${esc(cap(s.replace("_settlement", "")))}</span>`).join("") + (item.max_levels ? `<span class="pill">max level ${item.max_levels}</span>` : "")
+        : (item.levy ? `<span class="pill">levy</span>` : "") + (item.started ? `<span class="pill" title="Regiments of this type across all countries at the start">${n0(item.started)} at start</span>` : "");
+      return `<div class="ucard ${can ? "has" : "lk"}" title="${esc(item.desc || "")}">
+        <div class="uhead">${src ? `<img src="${src}" alt="" loading="lazy">` : ""}<b>${esc(item.name)}</b></div>
+        <div class="ubody"><p class="ustatus">${can ? (item.unlocked_by.length ? `${esc(c.name)} starts with it` : "No advance needed") : `${esc(c.name)} needs an advance`}</p>
+          ${badges ? `<div class="ubadges">${badges}</div>` : ""}
+          <ul class="ustats">${isBuilding ? (item.effects || []).slice(0, 4).map(e => { const f = fmtEffect(e); return `<li><span>${esc(e.name)}</span><span class="v ${f.cls}">${f.text}</span></li>`; }).join("") : unitStats(item)}</ul>
+          ${item.upgrades_to ? `<p class="ulink">Upgrades to ${esc(item.upgrades_to)}</p>` : ""}
+          ${link ? `<p class="ulink">Unlocked by ${link}</p>` : ""}</div></div>`;
+    }
+    function renderUnits() {
+      const c = current(), isBuilding = state.unitKind === "buildings", items = visibleItems(state.unitKind, c);
+      document.getElementById("unitTabs").innerHTML = Object.entries(UNIT_KINDS).map(([k, label]) => {
+        const list = visibleItems(k, c);
+        return `<button data-kind="${k}" class="${k === state.unitKind ? "on" : ""}">${label}<span>${list.filter(i => canBuild(c, i)).length}/${list.length}</span></button>`;
+      }).join("");
+      document.getElementById("unitNote").textContent = isBuilding
+        ? "Columns are the Age of the advance that unlocks each building (the first column needs none). Cards are dimmed by what the selected country can build at the start; items only some countries get appear only for a country that has them. Click an advance to see it in the tree."
+        : `Columns are the Age each ${state.unitKind === "ships" ? "ship" : "unit"} appears in. Cards are dimmed by what the selected country can use at the start (items only some countries get appear only for a country that has them); "at start" counts the regiments that exist across all countries in 1337. Land units are recruited as levies and regiments in-game, so their stats here are the base values.`;
+      const ages = [null, ...state.data.ages.map(a => a.id)].filter(a => items.some(i => (i.age ?? null) === a));
+      const rowKey = i => i.category || "Other";
+      const rows = [...new Set(items.map(rowKey))].sort();
+      const ageName = a => a ? state.data.ages.find(x => x.id === a)?.name : "No advance needed";
+      const grid = document.getElementById("unitGrid");
+      grid.style.gridTemplateColumns = `var(--rowhead, 150px) repeat(${ages.length}, 206px)`;
+      grid.innerHTML = `<div></div>` + ages.map(a => `<div class="ucol-head">${esc(ageName(a))}</div>`).join("") +
+        rows.map(r => `<div class="urow-head">${esc(r)}</div>` + ages.map(a =>
+          `<div class="ucell">${items.filter(i => rowKey(i) === r && (i.age ?? null) === a).map(i => unitCard(c, i, isBuilding)).join("")}</div>`).join("")).join("");
+    }
+
+    // --- Views ---------------------------------------------------------------
+    function showView(id, { sync = true } = {}) {
+      document.querySelectorAll("#tabs button").forEach(x => x.classList.toggle("on", x.dataset.view === id));
+      document.querySelectorAll(".view").forEach(v => v.classList.toggle("on", v.id === id));
+      document.body.classList.remove("sheet-open");
+      if (sync) syncHash();
+      renderSidebar(); render();
+    }
+    function render() {
+      renderHeader();
+      if (viewOn("techView")) { renderTechTabs(); renderTree(); renderDetail(); }
+      if (viewOn("countryView")) renderCountries();
+      if (viewOn("unitView")) renderUnits();
+    }
+    // Jump to an advance in the tree (from a link in a card or panel).
+    function gotoAdv(id) {
+      const a = state.adv[id]; if (!a) return;
+      state.age = a.age; state.group = a.group === "special" ? "mine" : "core";
+      if (a.group !== "special" && a.group !== "core") state.group = a.group;
+      state.focusAdv = id;
+      showView("techView");
+      requestAnimationFrame(() => scrollToAdv(id));
+    }
+
+    // --- Theme toggle ------------------------------------------------------------
+    const themeToggle = document.getElementById("themeToggle");
+    const systemDark = matchMedia("(prefers-color-scheme: dark)");
+    const currentTheme = () => document.documentElement.dataset.theme || (systemDark.matches ? "dark" : "light");
+    function renderThemeToggle() {
+      const next = currentTheme() === "dark" ? "light" : "dark";
+      themeToggle.textContent = next === "dark" ? "🌙" : "☀️";
+      themeToggle.title = themeToggle.ariaLabel = `Switch to the ${next} theme`;
+    }
+    themeToggle.addEventListener("click", () => {
+      const next = currentTheme() === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      try { localStorage.setItem("eu5-theme", next); } catch {}
+      renderThemeToggle();
+    });
+    systemDark.addEventListener("change", renderThemeToggle);
+    renderThemeToggle();
+
+    // --- Events --------------------------------------------------------------
+    // Phones have no hover (and iOS Safari swallows a tap whose simulated
+    // mouseover changes the page), so hover previews are off on touch screens.
+    const noHover = matchMedia("(hover: none)").matches;
+    const isPhone = () => matchMedia("(max-width: 760px)").matches;
+    const aside = document.querySelector("aside");
+    aside.addEventListener("mouseover", e => {
+      if (noHover) return;
+      const row = e.target.closest(".country");
+      if (row && row.dataset.tag !== state.preview) { state.preview = row.dataset.tag; render(); }
+    });
+    aside.addEventListener("mouseleave", () => { if (state.preview) { state.preview = null; render(); } });
+    const pin = tag => { state.pinned = tag; state.preview = null; document.body.classList.remove("picker-open"); syncHash(); renderSidebar(); render(); };
+    document.getElementById("current").addEventListener("click", () => {
+      if (!isPhone()) return;
+      document.body.classList.add("picker-open");
+      aside.scrollTop = 0;
+    });
+    document.getElementById("pickerDone").addEventListener("click", () => document.body.classList.remove("picker-open"));
+    aside.addEventListener("click", e => { const row = e.target.closest(".country"); if (row) pin(row.dataset.tag); });
+    document.getElementById("search").addEventListener("input", renderSidebar);
+    document.querySelectorAll("input[name=scope]").forEach(r => r.addEventListener("change", () => {
+      state.scope = r.value; renderSidebar(); render();
+    }));
+    document.getElementById("tabs").addEventListener("click", e => { const b = e.target.closest("button"); if (b) showView(b.dataset.view); });
+    addEventListener("hashchange", () => {
+      const before = document.querySelector(".view.on")?.id;
+      const view = applyHash();
+      if (view !== before) showView(view, { sync: false }); else { renderSidebar(); render(); }
+      if (state.focusAdv) requestAnimationFrame(() => scrollToAdv(state.focusAdv));
+    });
+
+    document.getElementById("ageTabs").addEventListener("click", e => {
+      const b = e.target.closest("button[data-age]"); if (!b) return;
+      state.age = b.dataset.age; state.focusAdv = null; syncHash(); renderSidebar(); render();
+    });
+    document.getElementById("groupChips").addEventListener("click", e => {
+      const b = e.target.closest("button[data-group]"); if (!b) return;
+      state.group = b.dataset.group; state.focusAdv = null; syncHash(); renderSidebar(); render();
+    });
+    const tree = document.getElementById("tree");
+    tree.addEventListener("mouseover", e => {
+      if (noHover) return;
+      const n = e.target.closest(".node");
+      if (n && n.dataset.adv !== state.focusAdv) { state.focusAdv = n.dataset.adv; renderTree(); renderDetail(); }
+    });
+    // Click (not just hover) writes the advance into the URL hash.
+    tree.addEventListener("click", e => {
+      const n = e.target.closest(".node"); if (!n) return;
+      state.focusAdv = n.dataset.adv; syncHash(); renderTree(); renderDetail();
+      if (isPhone()) document.body.classList.add("sheet-open");
+    });
+    const onDetailClick = e => {
+      if (e.target.closest("[data-close]")) { document.body.classList.remove("sheet-open"); return; }
+      const tag = e.target.closest("[data-pin]")?.dataset.pin; if (tag) { pin(tag); return; }
+      const id = e.target.closest("[data-goto]")?.dataset.goto; if (id) gotoAdv(id);
+    };
+    document.getElementById("detail").addEventListener("click", onDetailClick);
+    document.getElementById("countryDetail").addEventListener("click", onDetailClick);
+    document.getElementById("countryTable").addEventListener("click", e => {
+      const th = e.target.closest("th");
+      if (th) { const k = th.dataset.sort; state.countryDesc = state.countrySort === k ? !state.countryDesc : k !== "name"; state.countrySort = k; syncHash(); renderSidebar(); renderCountries(); return; }
+      const tr = e.target.closest("tr[data-tag]"); if (tr) pin(tr.dataset.tag);
+    });
+    document.getElementById("showAll").addEventListener("click", () => { state.countryLimit = Infinity; renderCountries(); });
+    document.getElementById("unitTabs").addEventListener("click", e => {
+      const b = e.target.closest("button[data-kind]"); if (!b) return;
+      state.unitKind = b.dataset.kind; syncHash(); renderSidebar(); renderUnits();
+    });
+    document.getElementById("unitGrid").addEventListener("click", e => {
+      const id = e.target.closest("[data-goto]")?.dataset.goto; if (id) gotoAdv(id);
+    });
+  </script>
+
+  <script>
+    // First-party pageview logging -- see counter's BeaconController/
+    // PageView. No cookie, no persistent visitor id. Plain static page (no
+    // client-side routing), so this fires once per load. The subdomain is
+    // read from the hostname.
+    (() => {
+      const payload = JSON.stringify({
+        app: "counter",
+        subdomain: location.hostname.split(".")[0],
+        path: location.pathname,
+        referrer: document.referrer,
+      });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon("https://jane.berlin/beacon", payload);
+      } else {
+        fetch("https://jane.berlin/beacon", { method: "POST", body: payload, keepalive: true });
+      }
+    })();
+  </script>
+</body>
+</html>

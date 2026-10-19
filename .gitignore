@@ -1,0 +1,9 @@
+# Generated from Paradox's game files by extract.rb -- deployed to the site,
+# never committed. Only our own files in eu5/ are tracked.
+/eu5/*
+!/eu5/favicon.svg
+!/eu5/og-image.jpg
+.DS_Store
+
+# Melted saves for inspection -- big, and someone's game; never committed.
+/saves/
