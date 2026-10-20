@@ -357,7 +357,8 @@ class Eu5Extractor
             when "capital" then cur[:capital] = $2.to_i
             when "primary_culture" then cur[:culture] = $2.to_i
             when "primary_religion" then cur[:religion] = $2.to_i
-            when "great_power_rank" then cur[:great_power] = $2.to_i
+            when "great_power_rank" then cur[:power_rank] = $2.to_i  # a world ranking, every country has one
+            when "great_power" then cur[:great_power_member] = $2 == "yes"  # the 10 actual great powers
             when "last_months_population" then cur[:population] = $2.to_f
             when "max_manpower" then cur[:max_manpower] = $2.to_f
             when "max_sailors" then cur[:max_sailors] = $2.to_f
@@ -423,7 +424,7 @@ class Eu5Extractor
         continent: path[0], subcontinent: path[1], region: path[2],
         culture: cultures[c[:culture]] && (text(cultures[c[:culture]]) || humanize(cultures[c[:culture]])),
         religion: religions[c[:religion]] && (text(religions[c[:religion]]) || humanize(religions[c[:religion]])),
-        great_power: c[:great_power],
+        great_power: (c[:power_rank] if c[:great_power_member]), power_rank: c[:power_rank],
         level: c[:level],
         locations: c[:owned].size,
         rank: c[:loc_rank],

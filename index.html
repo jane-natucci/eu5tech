@@ -739,6 +739,7 @@
           ${c.culture ? `<li><span>Culture</span><span class="v">${esc(c.culture)}</span></li>` : ""}
           ${c.religion ? `<li><span>Religion</span><span class="v">${esc(c.religion)}</span></li>` : ""}
           ${c.level != null ? `<li><span>Starting technology level</span><span class="v">${c.level}</span></li>` : ""}
+          ${c.power_rank ? `<li><span>Great-power ranking (of ${state.data.countries.length})</span><span class="v">#${c.power_rank}</span></li>` : ""}
         </ul>
         <h3>Land</h3><ul>
           <li><span>Locations</span><span class="v">${n0(c.locations)}</span></li>
