@@ -55,7 +55,7 @@ class Eu5Extractor
     countries = extract_countries(advances)
     units = extract_units(advances)
     buildings = extract_buildings(advances)
-    write_icons(advances, countries, buildings)
+    write_icons(advances, countries, buildings, units)
 
     data = {
       generated_at: Time.now.utc.iso8601,
@@ -481,11 +481,14 @@ class Eu5Extractor
   end
 
   # ---- Icons ---------------------------------------------------------------
+  # Advance art: the file its `icon` names, else the one named after the advance itself (most advances have no
+  # `icon` line; the game looks them up by id), else the icon of the building it unlocks. Units have no art of
+  # their own: they show their category's icon (heavy infantry, galley ...), as the game's interface does.
   # Advance art, falling back to the icon of the building an advance unlocks;
   # only for advances the page can show (the generic trees, plus whatever
   # any country starts with) and every listed building. Mutates the advance
   # and building hashes with the :icon file name (without .png) if one exists.
-  def write_icons(advances, countries, buildings)
+  def write_icons(advances, countries, buildings, units)
     dir = @out.join("icons")
     dir.mkpath
     iface = @game.join("main_menu/gfx/interface")
@@ -496,14 +499,25 @@ class Eu5Extractor
       src.file? ? (jobs["b_#{id}"] = src; "b_#{id}") : nil
     end
 
+    units.each do |u|
+      src = iface.join("icons/unit_category/#{u[:category_id]}.dds")
+      src.file? && (jobs["u_#{u[:category_id]}"] = src) && u[:icon] = "u_#{u[:category_id]}"
+    end
+    unit_by_id = units.to_h { |u| [ u[:id], u ] }
+
     advances.each_with_index do |a, i|
       next if a[:group] == "special" && !researched.include?(i)
-      src = a[:icon_name] && iface.join("advance/#{a[:icon_name]}.dds")
-      if src&.file?
-        jobs[a[:icon_name]] = src
-        a[:icon] = a[:icon_name]
+      name = [ a[:icon_name], a[:id] ].compact.find { |n| iface.join("advance/#{n}.dds").file? }
+      if name
+        jobs[name] = iface.join("advance/#{name}.dds")
+        a[:icon] = name
       elsif (u = a[:unlocks]&.find { |x| x[:kind] == "building" })
         a[:icon] = building_icon.call(u[:id])
+      elsif (u = a[:unlocks]&.filter_map { |x| x[:kind] == "unit" && unit_by_id[x[:id]] }&.first)
+        a[:icon] = u[:icon] # "Archers" shows the light-infantry icon its unit has
+      elsif a[:unlocks]&.any? { |x| x[:kind] == "levy" } && (levies = iface.join("icons/unit_category/army_levies.dds")).file?
+        jobs["u_army_levies"] = levies
+        a[:icon] = "u_army_levies"
       end
     end
     buildings.each { |b| (i = building_icon.call(b[:id])) && b[:icon] = i }
@@ -521,7 +535,7 @@ class Eu5Extractor
       end
     end.each(&:join)
     # Drop references to icons that failed to convert.
-    [advances, buildings].each { |list| list.each { |x| x.delete(:icon) if x[:icon] && !dir.join("#{x[:icon]}.png").file? } }
+    [advances, buildings, units].each { |list| list.each { |x| x.delete(:icon) if x[:icon] && !dir.join("#{x[:icon]}.png").file? } }
   end
 end
 

@@ -64,7 +64,7 @@ if [ "${1:-}" = "--code-only" ]; then
     aws s3 cp "$f" "s3://${bucket}/${f}" --only-show-errors --cache-control "public, max-age=31536000"
   done
 else
-  aws s3 sync eu5/ "s3://${bucket}/eu5/" --delete --exclude ".DS_Store" --exclude "links.json" \
+  aws s3 sync eu5/ "s3://${bucket}/eu5/" --delete --exclude ".DS_Store" --exclude "links.json" --exclude "flag_facts.json" \
     --cache-control "public, max-age=31536000"
   # links.json (country name -> tag) is read by other apps that link here; at the root, not under the
   # year-long-cached /eu5/, so a change shows up within the hour.
