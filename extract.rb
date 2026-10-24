@@ -115,8 +115,17 @@ class Eu5Extractor
     }
     @out.mkpath
     @out.join("data.json").write(JSON.generate(data))
+    write_links(countries)
     puts "Wrote #{advances.size} advances, #{ages.size} ages, #{countries.size} countries, #{units.size} units, " \
          "#{buildings.size} buildings (start #{@save_meta[:date]}, v#{@save_meta[:version]}) to #{@out}"
+  end
+
+  # links.json: country name -> tag, so other sites can link a country named in their text straight to its page
+  # (paradox-scores does this for achievement texts). The first country with a name keeps it.
+  def write_links(countries)
+    names = {}
+    countries.each { |c| names[c[:name]] ||= [ c[:tag] ] }
+    @out.join("links.json").write(JSON.generate(route: "#%s", names: names))
   end
 
   private

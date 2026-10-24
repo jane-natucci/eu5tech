@@ -8,6 +8,7 @@ Everything is read straight from the game's own files and a freshly started 1337
 
 - `index.html` — the whole site: one static page, plain HTML/CSS/JS, no build step or framework.
 - `extract.rb` — reads a local Europa Universalis V install plus a *melted* 1337 save and writes `eu5/data.json` and the icons the page uses. Plain Ruby; needs [ImageMagick](https://imagemagick.org) (`magick`) for the icons.
+- `links.json` (written by `extract.rb`) — country name → tag, read by other sites that link a country named in their text straight to its page, e.g. `#FRA`.
 - `deploy.sh` — uploads the page and the generated files to S3, served through CloudFront. See [Deploying](#deploying).
 
 The generated files (and the save) come from Paradox's game data, so they're **not in this repo**. Run the extractor against your own install to get them.
