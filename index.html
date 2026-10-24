@@ -772,6 +772,10 @@
         return mine.length ? `<details><summary>${esc(age.name)} <span class="k">${mine.length}</span></summary><ul>${mine.sort((x, y) => x.name.localeCompare(y.name)).map(a => `<li><span class="link" data-goto="${a.id}">${esc(a.name)}</span></li>`).join("")}</ul></details>` : "";
       }).join("");
       const sc = c.scores;
+      // A ruler or heir: name, house and age, the three abilities (0-100), then traits.
+      const person = p => `<li><span><b>${esc(p.name)}</b>${p.dynasty ? ` · ${esc(p.dynasty)}` : ""}</span><span class="v">${p.age != null ? `age ${p.age}` : ""}</span></li>`
+        + (p.adm != null ? `<li><span class="muted" title="Administration / diplomacy / military, each 0-100">ADM / DIP / MIL</span><span class="v">${p.adm} / ${p.dip} / ${p.mil}</span></li>` : "")
+        + (p.traits ? `<li><span class="muted">Traits</span><span class="v">${p.traits.map(esc).join(", ")}</span></li>` : "");
       el.innerHTML = `<button type="button" class="sheet-close" data-close aria-label="Close">✕</button>
         <div class="top">${swatch(c, "big")}<div><h2>${esc(c.name)}</h2>
           <div class="meta">${esc(c.tag)}${c.great_power ? ` · great power #${c.great_power}` : ""}${c.type && c.type !== "Real" ? ` · ${esc(c.type)}` : ""}</div></div></div>
@@ -783,6 +787,8 @@
           ${c.level != null ? `<li><span>Starting technology level</span><span class="v">${c.level}</span></li>` : ""}
           ${c.power_rank ? `<li><span>Great-power ranking (of ${state.data.countries.length})</span><span class="v">#${c.power_rank}</span></li>` : ""}
         </ul>
+        ${c.ruler ? `<h3>Ruler</h3><ul>${person(c.ruler)}</ul>` : ""}
+        ${c.heir ? `<h3>Heir</h3><ul>${person(c.heir)}</ul>` : ""}
         <h3>Land</h3><ul>
           <li><span>Locations</span><span class="v">${n0(c.locations)}</span></li>
           ${c.rank ? Object.entries(c.rank).map(([r, n]) => `<li><span class="muted">${esc(cap(r.replace(/_/g, " ")))}s</span><span class="v">${n}</span></li>`).join("") : ""}

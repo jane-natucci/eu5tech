@@ -331,6 +331,7 @@ class Eu5Extractor
         elsif d == 4
           blk2 = l =~ /\A\t{4}(\w+)=\{\s*\z/ ? $1 : nil
           case blk
+          when "government" then cur[$1.to_sym] = $2.to_i if l =~ /\A\t{4}(ruler|heir)=(\d+)/
           when "researched_advances" then cur[:researched] << $1 if l =~ /\A\t{4}(\w+)=yes/
           when "currency_data" then cur[:currency][$1] = $2.to_f if l =~ /\A\t{4}(\w+)=(-?[\d.]+)/
           when "color" then cur[:color] = l.split.map(&:to_i) if l =~ /\A\t{4}\d/
@@ -340,6 +341,8 @@ class Eu5Extractor
           when "units" then cur[:armies] = (cur[:armies] || 0) + l.split.size
           when "amount_of_location_rank" then cur[:loc_rank][$1] = $2.to_i if l =~ /\A\t{4}(\w+)=(\d+)/
           end
+        elsif d == 5 && blk == "government" && blk2 == "regnal_numbers"
+          (cur[:regnal] ||= {})[$1] = $2.to_i if l =~ /\A\t{5}(\w+)=(\d+)/
         elsif d == 5 && blk == "score" && blk2 == "score_rating"
           cur[:rating][$1] = $2.to_f.round(2) if l =~ /\A\t{5}(ADM|DIP|MIL)=(-?[\d.]+)/
         end
@@ -370,6 +373,7 @@ class Eu5Extractor
       end
     end
 
+    people = read_people(countries.values.flat_map { |c| [ c[:ruler], c[:heir] ] }.compact, cultures, religions)
     index = advances.each_with_index.to_h { |a, i| [a[:id], i] }
     list = countries.values.filter_map do |c|
       next if c[:owned].nil? || c[:owned].empty?
@@ -398,6 +402,7 @@ class Eu5Extractor
         gold: c[:currency]["gold"]&.round(1), prestige: c[:currency]["prestige"]&.round(1),
         stability: c[:currency]["stability"]&.round(1), army_tradition: c[:currency]["army_tradition"]&.round(2),
         max_manpower: c[:max_manpower]&.round(2), max_sailors: c[:max_sailors]&.round(2),
+        ruler: person_card(people[c[:ruler]], c[:regnal]), heir: person_card(people[c[:heir]], nil),
         scores: c[:rating].empty? ? nil : c[:rating],
         score_place: c[:score_place],
         armies: c[:armies],
@@ -406,6 +411,55 @@ class Eu5Extractor
       }.compact.reject { |_, v| v == {} }
     end
     list.sort_by { |c| [-c[:development].to_f, c[:tag]] }
+  end
+
+  # ---- Rulers --------------------------------------------------------------
+  # The people the page shows (every country's ruler and heir): first name, abilities, birth date, dynasty, traits.
+  def read_people(ids, cultures, religions)
+    wanted = ids.to_set
+    dynasties = named_ids("dynasty_manager", "key")
+    people = {}
+    cur = nil
+    in_traits = false
+    each_save_line("character_db") do |l|
+      d = depth(l)
+      if d == 2 && l =~ /\A\t\t(\d+)=\{/
+        cur = wanted.include?($1.to_i) ? (people[$1.to_i] = { traits: [] }) : nil
+        in_traits = false
+      elsif cur && d == 3
+        in_traits = l.match?(/\A\t\t\ttraits=\{/)
+        case l
+        when /\A\t\t\tfirst_name="([^"]*)"/ then cur[:first_name] = $1
+        when /\A\t\t\t(adm|dip|mil)=(\d+)/ then cur[$1.to_sym] = $2.to_i
+        when /\A\t\t\tbirth_date=(\d+)\.(\d+)\.(\d+)/ then cur[:born] = [ $1.to_i, $2.to_i, $3.to_i ]
+        when /\A\t\t\tdynasty=(\d+)/ then cur[:dynasty] = dynasties[$1.to_i]
+        end
+      elsif cur && in_traits && d == 4
+        cur[:traits].concat(l.split)
+      end
+    end
+    people
+  end
+
+  # What goes into data.json for a ruler or heir; `regnal` counts how many rulers of each first name the country has had.
+  def person_card(p, regnal)
+    return nil unless p && p[:first_name]
+    start_year, start_month = save_meta[:date].split(".").map(&:to_i)
+    born = p[:born]
+    age = born && (start_year - born[0] - ((start_month < born[1]) ? 1 : 0))
+    number = regnal && regnal[p[:first_name]]
+    first = text(p[:first_name]) || humanize(p[:first_name].sub(/\Aname_/, ""))
+    {
+      name: number && number > 1 ? "#{first} #{roman(number)}" : first,
+      age: age, adm: p[:adm], dip: p[:dip], mil: p[:mil],
+      dynasty: p[:dynasty] && (text(p[:dynasty]) || humanize(p[:dynasty].sub(/_dynasty\z/, ""))),
+      traits: p[:traits].filter_map { |t| text(t) || humanize(t) }
+    }.compact.reject { |_, v| v == [] }
+  end
+
+  def roman(n)
+    { 1000 => "M", 900 => "CM", 500 => "D", 400 => "CD", 100 => "C", 90 => "XC", 50 => "L", 40 => "XL", 10 => "X", 9 => "IX", 5 => "V", 4 => "IV", 1 => "I" }
+      .reduce([ "", n ]) { |(out, left), (v, sym)| [ out + sym * (left / v), left % v ] }.first
   end
 
   # ---- Units ---------------------------------------------------------------
