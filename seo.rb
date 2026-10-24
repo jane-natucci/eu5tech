@@ -101,11 +101,11 @@ pages.each do |c|
   near = (pages[[ i - 6, 0 ].max...i] + pages[(i + 1)..(i + 6)].to_a)
   facts = summary(c, advances, year)
   block = <<~HTML
-    <section class="seo-about" aria-label="About #{h(c["name"])}">
-      <h2>#{h(c["name"])} at the #{year} start of #{GAME}</h2>
+    <details class="seo-about">
+      <summary>About #{h(c["name"])} at the #{year} start</summary>
       #{facts.map { |f| "<p>#{h(f)}</p>" }.join("\n      ")}
       <p>Similar in size: #{links_to.call(near)}. <a href="/">All countries</a>.</p>
-    </section>
+    </details>
   HTML
   title = "#{c["name"]} in #{SHORT} (#{year}): ruler, advances, army and economy – #{SHORT} Tech"
   url = "#{SITE}/country/#{c["slug"]}"
@@ -124,14 +124,8 @@ pages.each do |c|
   File.write(File.join(out, "country", c["slug"]), html, encoding: "UTF-8")
 end
 
-# --- The front page: the same, with a plain list of every country page --------------------------------------------------
-front = template.sub("<!--seo:about-->", <<~HTML)
-  <section class="seo-about" aria-label="About this site">
-    <h2>Every #{GAME} country at the #{year} start</h2>
-    <p>This is a free reference built from the game's own files: the full advance tree by Age, what each of the #{n0(countries.size)} countries starts with, and how they compare in development, population, treasury, armies and rulers, plus every unit and building by Age. Pick a country below, or open one directly:</p>
-    <p>#{links_to.call(pages.first(120))}</p>
-  </section>
-HTML
+# --- The front page: unchanged to look at, just without the markers (the sitemap and the pages themselves carry the links) ---
+front = template.sub("<!--seo:about-->", "")
 front = front.sub("<!--seo:head-->", "")
 File.write(File.join(out, "index.html"), front, encoding: "UTF-8")
 
