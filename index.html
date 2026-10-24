@@ -131,7 +131,17 @@
     .current .cstats { font-size: 0.8em; color: var(--muted); }
     .current b { font-family: Georgia, serif; font-weight: normal; font-size: 1.2em; }
     .pill { font-size: 0.72em; padding: 2px 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
-    .sw { display: inline-block; width: 18px; height: 12px; border-radius: 3px; border: 1px solid color-mix(in srgb, var(--ink) 35%, transparent); flex: none; }
+    /* A country's flag (its map colour shows while the picture loads, or where it has none). */
+    .sw { display: inline-block; position: relative; overflow: hidden; width: 18px; height: 12px; border-radius: 3px; border: 1px solid color-mix(in srgb, var(--ink) 35%, transparent); flex: none; }
+    .sw .fimg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* The current country's flag in the top-left corner, as in the game; on a phone the country bar has it instead. */
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .corner-flag { display: none; height: 44px; width: 60px; margin: -5px 0; flex: none; /* the flag may overhang the row a little, so the bar keeps the height it had */ filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35)); }
+    @media (min-width: 761px) {
+      body.has-flag .corner-flag { display: block; }
+      body.has-flag .brand .title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } /* still the page's heading, just not drawn */
+      body.has-flag .current .sw.big { display: none; }
+    }
     .sw.big { width: 30px; height: 20px; border-radius: 4px; }
 
     /* Sidebar */
@@ -332,7 +342,10 @@
 </head>
 <body>
   <header>
-    <h1>Europa Universalis V <small id="startLabel">1337 start</small></h1>
+    <div class="brand">
+      <canvas class="corner-flag" id="cornerFlag" width="60" height="44" role="img" aria-label=""></canvas>
+      <h1><span class="title">Europa Universalis V</span> <small id="startLabel">1337 start</small></h1>
+    </div>
     <!-- deploy.sh fills in the commit; a local preview has no build to show. -->
     <a class="build" id="buildLink" href="https://github.com/jane-natucci/eu5tech/commit/__BUILD_SHA__" target="_blank" rel="noopener" title="View the deployed source commit on GitHub"><span class="long">Build </span>__BUILD_LABEL__</a>
     <div class="tabs" id="tabs">
@@ -427,7 +440,11 @@
     const regiments = c => sum(c.army);
     const shipCount = c => sum(c.navy);
     const viewOn = id => document.getElementById(id).classList.contains("on");
-    const swatch = (c, cls = "") => `<span class="sw ${cls}" style="background:${c.color || "#888"}" title="${esc(c.name)}"></span>`;
+    // Flags are drawn from the game's coat-of-arms files (extract_flags.rb); they have a version of their own so a redrawn
+    // flag busts the cache without the data changing.
+    const FLAGS_VERSION = "__FLAGS_VERSION__";
+    const flagUrl = path => `/eu5/flags/${path}?v=${FLAGS_VERSION.startsWith("__") ? assetVersion : FLAGS_VERSION}`;
+    const swatch = (c, cls = "") => `<span class="sw ${cls}" style="background:${c.color || "#888"}" title="${esc(c.name)}"><img class="fimg" src="${flagUrl(`s/${c.tag}.png`)}" alt="" loading="lazy" decoding="async" onerror="this.remove()"></span>`;
     const ageShort = id => id.replace(/^age_\d+_/, "");
     const ageByShort = short => state.data.ages.find(a => ageShort(a.id) === short)?.id;
 
@@ -692,12 +709,38 @@
         : `<p class="hint">No matches.</p>`;
     }
 
+    // The current country's flag in the corner, hung like cloth in a still wave (the game's flags wave; this keeps
+    // the folds and their light and shadow but doesn't move). Drawn from the flag picture: every pixel column is
+    // lifted or dropped along one wave that grows away from the pole, with a light or dark band where the cloth folds.
+    function drawCornerFlag(c) {
+      const cv = document.getElementById("cornerFlag"), img = new Image(), ratio = window.devicePixelRatio || 1;
+      cv.setAttribute("aria-label", c.name); cv.title = c.name;
+      img.onerror = () => document.body.classList.remove("has-flag");
+      img.onload = () => {
+        if (current()?.tag !== c.tag) return; // the pointer has moved on to another country
+        const W = Math.round(60 * ratio), H = Math.round(44 * ratio), amp = 3.4 * ratio, phase0 = 330 * Math.PI / 180, waves = 1.5, shade = 0.3;
+        cv.width = W; cv.height = H;
+        const ctx = cv.getContext("2d"), inner = H - 2 * amp - 2 * ratio;
+        for (let x = 0; x < W; x++) {
+          const u = x / W, grow = 0.2 + 0.8 * u, phase = u * waves * Math.PI * 2 - phase0;
+          const y = amp + ratio + Math.sin(phase) * amp * grow;
+          ctx.drawImage(img, Math.floor(u * img.naturalWidth), 0, 2, img.naturalHeight, x, y, 1, inner);
+          const s = Math.cos(phase) * shade * grow;
+          ctx.fillStyle = s > 0 ? `rgba(255,255,255,${s * 0.55})` : `rgba(0,0,0,${-s})`;
+          ctx.fillRect(x, y, 1, inner);
+        }
+        document.body.classList.add("has-flag");
+      };
+      img.src = flagUrl(`${c.tag}.png`);
+    }
+
     function renderHeader() {
       const c = current();
       document.getElementById("current").innerHTML = `${swatch(c, "big")}<div><b class="cname">${esc(c.name)}</b>
         <span class="cstats" title="${esc(`${c.advances.length} advances · ${n0(c.development)} development · ${popFmt(c.population)} people · ${c.locations} locations · ${regiments(c)} regiments · ${shipCount(c)} ships`)}">${c.advances.length} advances · ${n0(c.development)} dev · ${popFmt(c.population)} · ${c.locations} locations · ${regiments(c)} regiments · ${shipCount(c)} ships</span></div>
         ${c.great_power ? `<span class="pill" title="Great power rank at the start">Great power #${c.great_power}</span>` : ""}
         ${state.preview && state.preview !== state.pinned ? `<span class="pill">preview</span>` : ""}`;
+      drawCornerFlag(c);
     }
 
     // --- Countries table ---------------------------------------------------------

@@ -33,10 +33,20 @@ if [ "${1:-}" = "--code-only" ]; then
     exit 1
   }
   data="$tmp/data.json"
+  # The flags have a version of their own (a digest of the pictures, written by the last full deploy), so
+  # redrawing a flag busts the cache without the data changing, and a CI deploy keeps whatever is on S3.
+  aws s3 cp "s3://${bucket}/eu5/flags/VERSION" "$tmp/VERSION" --only-show-errors || echo 0 > "$tmp/VERSION"
 else
   [ -f eu5/data.json ] || { echo "No eu5/data.json -- run: ruby extract.rb" >&2; exit 1; }
   data="eu5/data.json"
+  if [ -d eu5/flags ]; then
+    find eu5/flags -name '*.png' | sort | xargs cat | md5 | cut -c1-10 > eu5/flags/VERSION
+  else
+    echo 0 > "$tmp/VERSION"; mkdir -p eu5/flags; cp "$tmp/VERSION" eu5/flags/VERSION
+  fi
+  cp eu5/flags/VERSION "$tmp/VERSION"
 fi
+flags_version="$(tr -d '[:space:]' < "$tmp/VERSION")"
 
 version="$(cat "$data" $tracked | md5)"
 version="${version:0:10}"
@@ -45,7 +55,7 @@ version="${version:0:10}"
 sha="$(git rev-parse HEAD)"
 label="${sha:0:7}"
 [ -z "$(git status --porcelain -- index.html $tracked)" ] || label="${label}-dirty"
-sed -e "s/__DATA_VERSION__/${version}/g" -e "s/__BUILD_SHA__/${sha}/g" -e "s/__BUILD_LABEL__/${label}/g" \
+sed -e "s/__DATA_VERSION__/${version}/g" -e "s/__FLAGS_VERSION__/${flags_version}/g" -e "s/__BUILD_SHA__/${sha}/g" -e "s/__BUILD_LABEL__/${label}/g" \
   index.html > "$tmp/index.html"
 
 # Assets first, page last, so a new page never points at files not yet there.
