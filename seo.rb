@@ -34,6 +34,7 @@ def people(thousands)
   t >= 1000 ? "#{format("%.2f", t / 1000).sub(/\.?0+\z/, "")} million" : "#{n0(t)} thousand"
 end
 
+def count(n, one, many = "#{one}s") = "#{n0(n)} #{n.to_i == 1 ? one : many}"
 def slugify(name) = name.unicode_normalize(:nfkd).gsub(/\p{Mn}/, "").downcase.gsub(/[^a-z0-9]+/, "-").gsub(/\A-|-\z/, "")
 
 pages = countries.select { |c| c["locations"].to_i >= MIN_LOCATIONS }.sort_by { |c| -c["development"].to_f }
@@ -65,7 +66,7 @@ def summary(c, advances, year)
            "#{c["capital"] ? ", with its capital at #{c["capital"]}" : ""}."
   facts << "Its people are #{c["culture"]}#{c["religion"] ? " and follow #{c["religion"]}" : ""}." if c["culture"]
   facts << "It holds #{n0(c["locations"])} locations with #{n0(c["development"])} development and about #{people(c["population"])} people."
-  facts << "It starts with #{c["advances"].size} advances#{specials.any? ? " (among them #{specials.join(", ")})" : ""}, #{regiments} regiments and #{ships} ships."
+  facts << "It starts with #{c["advances"].size} advances#{specials.any? ? " (among them #{specials.join(", ")})" : ""}, #{count(regiments, "regiment")} and #{count(ships, "ship")}."
   facts << "#{person(c["ruler"], "Ruler")}." if c["ruler"]
   facts << "#{person(c["heir"], "Heir")}." if c["heir"]
   facts
