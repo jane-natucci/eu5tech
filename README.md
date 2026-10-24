@@ -21,6 +21,7 @@ Which advances each country begins with isn't spelled out in the game files (it 
 
 ```bash
 ruby extract.rb                                           # default Steam path, newest save in saves/
+ruby flag_facts.rb && ruby extract_flags.rb               # the flags: facts from the same save, then the pictures
 ruby extract.rb "/path/to/Europa Universalis V/game" saves/start_melted.eu5
 bundle install && bundle exec ruby -run -e httpd . -p 8000   # then open http://localhost:8000
 ```
@@ -47,7 +48,8 @@ Local deploys use the `personal` AWS profile by default (`AWS_PROFILE` overrides
 
 - Country-specific advances, units and buildings depend on culture, religion or government, which the page can't evaluate on its own; it shows what a country actually starts with.
 - Regiments at the start are few: most armies are raised from levies in-game.
-- Countries are coloured by their map colour; there are no flags.
+- Flags are drawn from the game's own coat-of-arms files by `extract_flags.rb`. Which variant a country flies at the start is worked out by running the game's flag triggers (`flag_rules.rb`) against facts read from the save (`flag_facts.rb`: government, ruler's dynasty, owned locations, subjects and so on). A few checks it can't judge (some ruler and regency details, which continent a capital is on) count as "not true". The ~280 countries the game gives a random flag get a tile in their map colour.
+- Units have no art of their own in the game: each shows its category's icon. Advances without an `icon` line use the art named after the advance, else that of the building, unit or levy they unlock.
 
 ## Credits
 
