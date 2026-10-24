@@ -13,10 +13,33 @@
   <meta property="og:title" content="Europa Universalis V – Advances, Countries, Units &amp; Buildings at the 1337 Start">
   <meta property="og:description" content="Which countries start ahead in EU5? Every advance by Age, what each nation starts with, and how they compare in 1337, straight from the game files.">
   <meta property="og:url" content="https://eu5tech.jane.berlin/">
+  <meta property="og:image" content="https://eu5tech.jane.berlin/eu5/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The Europa Universalis V advance tree for France at the 1337 start">
+  <meta property="og:locale" content="en_US">
 
-  <meta name="twitter:card" content="summary">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Europa Universalis V – Advances, Countries, Units &amp; Buildings at the 1337 Start">
   <meta name="twitter:description" content="Every advance by Age and how every country compares at the 1337 start of EU5.">
+  <meta name="twitter:image" content="https://eu5tech.jane.berlin/eu5/og-image.jpg">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "EU5 Tech",
+      "url": "https://eu5tech.jane.berlin/",
+      "description": "Every Europa Universalis V country at the 1337 start: the advance tree by Age, what each country starts with, rulers, development, armies, units and buildings, read from the game files.",
+      "applicationCategory": "GameApplication",
+      "operatingSystem": "Any",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "about": { "@type": "VideoGame", "name": "Europa Universalis V" },
+      "author": { "@type": "Person", "name": "Jane Natucci", "url": "https://jane.berlin/" }
+    }
+  </script>
+  <!--seo:head-->
   <link rel="icon" type="image/svg+xml" href="/eu5/favicon.svg?v=__DATA_VERSION__">
   <script>
     // Runs before the page draws, so the theme doesn't flash: the visitor's
@@ -134,6 +157,11 @@
     /* A country's flag (its map colour shows while the picture loads, or where it has none). */
     .sw { display: inline-block; position: relative; overflow: hidden; width: 18px; height: 12px; border-radius: 3px; border: 1px solid color-mix(in srgb, var(--ink) 35%, transparent); flex: none; }
     .sw .fimg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    /* The plain-text summary of the open country (or of the site), for people and search engines that read the page's own text. */
+    .seo-about { padding: 14px 20px 6px; font-size: 0.82em; line-height: 1.5; color: var(--muted); border-top: 1px solid var(--line); }
+    .seo-about h2 { font-size: 1.1em; color: var(--ink); margin: 0 0 6px; }
+    .seo-about p { margin: 0 0 6px; max-width: 110ch; }
+    .seo-about a { color: var(--accent); }
     /* The current country's flag in the top-left corner, as in the game; on a phone the country bar has it instead. */
     .brand { display: flex; align-items: center; gap: 12px; }
     .corner-flag { display: none; height: 44px; width: 60px; margin: -5px 0; flex: none; /* the flag may overhang the row a little, so the bar keeps the height it had */ filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35)); }
@@ -394,6 +422,7 @@
       <div id="unitGrid"></div>
     </section>
 
+    <!--seo:about-->
     <footer>
       Unofficial fan page. Data, flags and icons come from the Europa Universalis V game files<span id="gameVersion"></span>; Europa Universalis V is © Paradox Interactive.
     </footer>
@@ -459,7 +488,7 @@
     const HASH_VIEW = Object.fromEntries(Object.entries(VIEW_HASH).map(([k, v]) => [v, k]));
     function parseHash() {
       const [tagPart, viewPart, a, b, c] = location.hash.slice(1).split("/");
-      return { tag: tagPart ? tagPart.toUpperCase() : null, view: HASH_VIEW[viewPart] || null, a, b, c };
+      return { tag: tagPart ? tagPart.toUpperCase() : document.querySelector('meta[name="initial-tag"]')?.content || null, view: HASH_VIEW[viewPart] || null, a, b, c };
     }
     function syncHash() {
       const viewId = document.querySelector(".view.on")?.id;

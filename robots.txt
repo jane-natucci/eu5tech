@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://eu5tech.jane.berlin/sitemap.xml
