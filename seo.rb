@@ -24,6 +24,9 @@ data = JSON.parse(File.read(ARGV[0], encoding: "UTF-8"))
 template = File.read(ARGV[1], encoding: "UTF-8")
 out = ARGV[2]
 countries = data["countries"]
+# The game only really ranks the first few dozen countries (1, 2, 3, ... with no gap); later numbers mean nothing.
+ranks = countries.map { |c| c["power_rank"] }.to_set
+RANKED = (1..).find { |r| !ranks.include?(r) } - 1
 advances = data["advances"]
 year = data["start_date"].to_s.split(".").first || "1337"
 
@@ -62,7 +65,7 @@ def summary(c, advances, year)
   regiments = c["army"]&.values&.sum.to_i
   ships = c["navy"]&.values&.sum.to_i
   facts = []
-  facts << "#{c["name"]} (#{c["tag"]}) is #{c["great_power"] ? "great power ##{c["great_power"]}" : "ranked ##{c["power_rank"]}"} at the #{year} start of #{GAME}" \
+  facts << "#{c["name"]} (#{c["tag"]}) is #{c["great_power"] ? "great power ##{c["great_power"]}" : c["power_rank"].to_i.between?(1, RANKED) ? "ranked ##{c["power_rank"]} of #{RANKED}" : "unranked"} at the #{year} start of #{GAME}" \
            "#{c["capital"] ? ", with its capital at #{c["capital"]}" : ""}."
   facts << "Its people are #{c["culture"]}#{c["religion"] ? " and follow #{c["religion"]}" : ""}." if c["culture"]
   facts << "It holds #{n0(c["locations"])} locations with #{n0(c["development"])} development and about #{people(c["population"])} people."

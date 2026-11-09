@@ -526,6 +526,11 @@
       document.getElementById("startLabel").textContent = `${data.start_date?.split(".")[0] || 1337} start`;
       data.advances.forEach((a, i) => { a.i = i; a.requires ||= []; state.adv[a.id] = a; });
       data.countries.forEach(c => { c.advances ||= []; });
+      // The game only really ranks the first few dozen countries (ranks 1, 2, 3, ... with no gap);
+      // everyone after the first gap gets a number in the game's internal order, which means nothing.
+      const ranks = new Set(data.countries.map(c => c.power_rank));
+      state.ranked = 0;
+      while (ranks.has(state.ranked + 1)) state.ranked++;
       data.units.forEach(u => { u.unlocked_by ||= []; });
       data.buildings.forEach(b => { b.unlocked_by ||= []; });
       data.countries.forEach(c => { c.advSet = new Set(c.advances); state.byTag[c.tag] = c; });
@@ -815,7 +820,7 @@
           ${c.culture ? `<li><span>Culture</span><span class="v">${esc(c.culture)}</span></li>` : ""}
           ${c.religion ? `<li><span>Religion</span><span class="v">${esc(c.religion)}</span></li>` : ""}
           ${c.level != null ? `<li><span>Starting technology level</span><span class="v">${c.level}</span></li>` : ""}
-          ${c.power_rank ? `<li><span>Great-power ranking (of ${state.data.countries.length})</span><span class="v">#${c.power_rank}</span></li>` : ""}
+          ${c.power_rank ? `<li><span>Great-power ranking</span><span class="v">${c.power_rank <= state.ranked ? `#${c.power_rank} of ${state.ranked}` : `<span class="muted" title="The game ranks only the top ${state.ranked} countries">unranked</span>`}</span></li>` : ""}
         </ul>
         ${c.ruler ? `<h3>Ruler</h3><ul>${person(c.ruler)}</ul>` : ""}
         ${c.heir ? `<h3>Heir</h3><ul>${person(c.heir)}</ul>` : ""}
