@@ -193,7 +193,7 @@ class Eu5Extractor
     tags = []
     pure = true
     Jomini.walk(potential) do |k, v|
-      if %w[has_or_had_tag tag].include?(k) && v.is_a?(String) then tags << v
+      if %w[has_or_had_tag tag original_tag].include?(k) && v.is_a?(String) then tags << v
       elsif v.is_a?(String) && !%w[OR AND].include?(k) then pure = false
       end
     end
@@ -310,7 +310,7 @@ class Eu5Extractor
           cur = countries[$1.to_i] = { id: $1.to_i, researched: [], currency: {}, rating: {}, ranks: {}, loc_rank: {} }
           blk = nil
         elsif d == 3
-          if l =~ /\A\t\t\t(\w+)=\{\s*\z/ || l =~ /\A\t\t\t(color)=rgb \{\s*\z/ then blk = $1
+          if l =~ /\A\t\t\t(\w+)=\{\s*\z/ || l =~ /\A\t\t\t(color)=rgb(?: \{)?\s*\z/ then blk = $1 # 1.4 saves put the { on the next line
           elsif l =~ /\A\t\t\t\}/ then blk = nil
           elsif l =~ /\A\t\t\t(\w+)=(.+?)\s*\z/
             blk = nil
